@@ -16,9 +16,10 @@ Sessions are issued as short-lived access tokens (15 min) with 30-day refresh, a
 
 ## Variables (all automatic — nothing to fill in at deploy time)
 
-| Variable | Value | Where it comes from |
+| Setting | Value | Where it comes from |
 |---|---|---|
-| `TELDRIVE_HTTP_ADDRESS` | `0.0.0.0:8080` | Baked default (Teldrive 2.x otherwise binds to loopback only) |
+| `TELDRIVE_HTTP_ADDRESS` | `0.0.0.0:8080` | Baked into the service start command as `--http-address` (Teldrive 2.x otherwise binds to loopback only) |
+| `TELDRIVE_DATABASE_CONNECT_TIMEOUT` | `5m` | Baked into the start command as `--database-connect-timeout` — lets first boot wait out Postgres initialization instead of racing it |
 | `TELDRIVE_DATABASE_URL` | Postgres internal URI + `sslmode=require` | Wired to the Postgres service automatically |
 | `TELDRIVE_SECURITY_SIGNING_KEY` | 43 random chars per deploy | Generated at deploy time (JWT signing — rotating logs everyone out) |
 | `TELDRIVE_SECURITY_DATA_KEY` | 43 random chars per deploy | Generated at deploy time (encrypts stored Telegram sessions — **NEVER rotate or clear it: data written under an old key cannot be decrypted with a replacement**) |
@@ -49,7 +50,7 @@ The older "Teldrive" marketplace listing pins **1.8.3**, which crash-loops on Ra
 
 Two services are provisioned:
 
-- **Teldrive** — the official `ghcr.io/tgdrive/teldrive` image, pinned by digest to release **2.0.13** (index digest `sha256:f1f221bd8c635b732257564798189520c5d5fd2331aa1bf86fdc81c856d41948`, commit `c9c366aa`). It serves the web UI and API on port 8080 behind a public Railway domain and answers `/health/ready` (checks PostgreSQL connectivity, migrations, and runtime state) plus `/health/live` without authentication.
+- **Teldrive** — the official `ghcr.io/tgdrive/teldrive` image, pinned by digest to release **2.0.13** (deployed amd64 manifest `sha256:507482449da4cae005183a885f8492cf3da45459501e9501dc8e57a4626fa0dd`, child of the release index `sha256:f1f221bd8c635b732257564798189520c5d5fd2331aa1bf86fdc81c856d41948`, commit `c9c366aa`). It serves the web UI and API on port 8080 behind a public Railway domain and answers `/health/ready` (checks PostgreSQL connectivity, migrations, and runtime state) plus `/health/live` without authentication.
 - **Postgres** — `ghcr.io/railwayapp-templates/postgres-ssl` release 18, pinned by digest (`sha256:4fc833b43d2aaf6ecc9b18615f5533602b723a32d0e2efe2dae8ca0f7217c863`), with a persistent volume at `/var/lib/postgresql/data` and `PGDATA` pointed at a `pgdata` subdirectory. It is reachable only over Railway's private network — no public domain.
 
 Teldrive runs its own schema migrations on boot inside the `teldrive` schema, so a fresh deploy needs no manual migration step. Redeploys are safe: the Postgres volume keeps all file metadata and encrypted Telegram sessions, and migrations are non-destructive across restarts.
