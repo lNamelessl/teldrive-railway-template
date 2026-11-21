@@ -2,7 +2,7 @@
 
 [Teldrive](https://github.com/tgdrive/teldrive) turns a Telegram account into a personal cloud drive: upload files through a clean web UI, and Teldrive stores them in your own private Telegram storage channels with a Postgres metadata index. This template deploys **Teldrive 2.0.13 + Postgres 18 (SSL)** in one click — zero deploy-form prompts, health-gated readiness, and a guided first-login flow.
 
-[![Deploy on Railway](https://railway.com/button.svg)](https://railway.app/new?github_url=https://github.com/lNamelessl/teldrive-railway-template)
+[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/deploy/teldrive-telegram-cloud-drive)
 
 ## After deploying — connect Telegram in three steps
 
